@@ -53,6 +53,8 @@ describe('UsersService', () => {
       const removed = await service.remove(user.id)
       expect(removed).toBeInstanceOf(User)
       expect(removed.id).toBe(user.id)
+      expect(removed.deletedAt).toBeInstanceOf(Date)
+      expect(removed.deletedAt).toBeDefined()
     })
   })
 })
