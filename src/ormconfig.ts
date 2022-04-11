@@ -1,6 +1,7 @@
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModuleAsyncOptions } from '@nestjs/typeorm'
 import { join } from 'path'
+import { EntitySchema } from 'typeorm'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 
 export function connectionOptions(): TypeOrmModuleAsyncOptions {
@@ -29,6 +30,22 @@ export function connectionOptions(): TypeOrmModuleAsyncOptions {
       username: configService.get('POSTGRES_USER'),
       password: configService.get('POSTGRES_PASSWORD'),
       database: configService.get('POSTGRES_DB'),
+    }),
+  }
+}
+
+type Entity = Function | string | EntitySchema<any>
+export function connectionTestOptions(
+  entities: Entity[],
+): TypeOrmModuleAsyncOptions {
+  return {
+    useFactory: async () => ({
+      type: 'sqlite',
+      database: ':memory:',
+      dropSchema: true,
+      entities: entities,
+      synchronize: true,
+      logging: false,
     }),
   }
 }

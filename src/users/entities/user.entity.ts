@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm'
 import { CreateUserDto } from '../dto/create-user.dto'
 
 @Entity()
@@ -6,20 +13,30 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column()
+  @Column({ unique: true })
   document: string
 
   @Column()
   name: string
 
   @Column()
-  birthDate: string
+  birthDate: Date
 
-  @Column()
+  @Column({ unique: true })
   email: string
 
   @Column()
   phone: string
+
+  @DeleteDateColumn()
+  deletedAt: Date
+
+  @CreateDateColumn()
+  createdAt: Date
+
+  @UpdateDateColumn()
+  updatedAt: Date
+
   constructor(user: CreateUserDto) {
     Object.assign(this, user)
   }

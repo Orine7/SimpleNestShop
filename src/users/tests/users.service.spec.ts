@@ -1,5 +1,9 @@
+import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { TypeOrmModule } from '@nestjs/typeorm'
+import { connectionTestOptions } from '../../ormconfig'
 import { newMockedUser } from '../../utils/fixtures'
+import { User } from '../entities/user.entity'
 import { UsersService } from '../users.service'
 
 describe('UsersService', () => {
@@ -8,6 +12,11 @@ describe('UsersService', () => {
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [UsersService],
+      imports: [
+        TypeOrmModule.forRootAsync(connectionTestOptions([User])),
+        TypeOrmModule.forFeature([User]),
+        ConfigModule,
+      ],
     }).compile()
 
     service = module.get<UsersService>(UsersService)
@@ -18,24 +27,32 @@ describe('UsersService', () => {
   })
 
   describe('should call sucessful methods', () => {
-    it('should create a user', () => {
-      expect(service.create(newMockedUser)).toBe('This action adds a new user')
+    let user: User
+    it('to create a user', async () => {
+      user = await service.create(newMockedUser)
+      expect(user).toBeInstanceOf(User)
+      expect(user.name).toBe(newMockedUser.name)
     })
 
-    it('should return all users', () => {
-      expect(service.findAll()).toBe('This action returns all users')
+    it('to return a user', async () => {
+      const found = await service.findOne(user.id)
+      expect(found).toBeInstanceOf(User)
+      expect(found.name).toBe(user.name)
     })
 
-    it('should return a user', () => {
-      expect(service.findOne(1)).toBe('This action returns a #1 user')
+    it('to update a user', async () => {
+      const updated = await service.update(user.id, {
+        name: 'Joao da Silva',
+      })
+      expect(updated).toBeInstanceOf(User)
+      expect(updated.name).toBe('Joao da Silva')
+      expect(updated.id).toBe(user.id)
     })
 
-    it('should update a user', () => {
-      expect(service.update(1, {})).toBe('This action updates a #1 user')
-    })
-
-    it('should remove a user', () => {
-      expect(service.remove(1)).toBe('This action removes a #1 user')
+    it('to remove a user', async () => {
+      const removed = await service.remove(user.id)
+      expect(removed).toBeInstanceOf(User)
+      expect(removed.id).toBe(user.id)
     })
   })
 })
