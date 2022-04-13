@@ -23,7 +23,7 @@ export class Order {
   quantity: number
 
   @Column({ enum: OrderStatus, default: OrderStatus.PENDING })
-  status: OrderStatus = OrderStatus.PENDING
+  status: OrderStatus
 
   @ManyToMany(() => Product)
   @JoinTable()

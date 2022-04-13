@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { FindManyOptions, FindOptionsWhere, IsNull, Repository } from 'typeorm'
 import { CreateOrderDto } from './dto/create-order.dto'
 import { UpdateOrderDto } from './dto/update-order.dto'
 import { Order } from './entities/order.entity'
@@ -17,19 +17,32 @@ export class OrdersService {
     return await this.orderRepo.save(order)
   }
 
-  async findAll() {
-    return `This action returns all orders`
+  async findAllBy(search?: FindOptionsWhere<Order>) {
+    const conditions: FindManyOptions<Order> = {
+      where: search,
+      relations: ['user', 'products'],
+    }
+    return await this.orderRepo.find(conditions)
   }
 
-  async findOne(id: string) {
-    return `This action returns a #${id} order`
+  async findOne(id: string, search?: FindOptionsWhere<Order>) {
+    return await this.orderRepo.findOne({
+      where: { id, deletedAt: IsNull(), ...search },
+      relations: ['user', 'products'],
+    })
   }
 
   async update(id: string, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`
+    const order = await this.findOne(id)
+    Object.keys(updateOrderDto).forEach((key) => {
+      order[key] = updateOrderDto[key]
+    })
+    return await this.orderRepo.save(order)
   }
 
   async remove(id: string) {
-    return `This action removes a #${id} order`
+    const order = await this.findOne(id)
+    await this.orderRepo.softRemove(order)
+    return order
   }
 }

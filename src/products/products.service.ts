@@ -25,11 +25,11 @@ export class ProductsService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
-    const user = await this.findOne(id)
+    const product = await this.findOne(id)
     Object.keys(updateProductDto).forEach((key) => {
-      user[key] = updateProductDto[key]
+      product[key] = updateProductDto[key]
     })
-    return await this.productRepo.save(user)
+    return await this.productRepo.save(product)
   }
 
   async remove(id: string) {
