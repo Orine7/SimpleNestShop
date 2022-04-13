@@ -25,7 +25,7 @@ export function connectionOptions(): TypeOrmModuleAsyncOptions {
         migrationsDir: 'src/migrations',
       },
       namingStrategy: new SnakeNamingStrategy(),
-      synchronize: false,
+      synchronize: true,
       host: configService.get('DATABASE_HOST'),
       username: configService.get('POSTGRES_USER'),
       password: configService.get('POSTGRES_PASSWORD'),
