@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { FindManyOptions, FindOptionsWhere, IsNull, Repository } from 'typeorm'
+import { OrderStatus } from '../utils/orderStatus'
 import { CreateOrderDto } from './dto/create-order.dto'
 import { UpdateOrderDto } from './dto/update-order.dto'
 import { Order } from './entities/order.entity'
@@ -19,7 +20,7 @@ export class OrdersService {
 
   async findAllBy(search?: FindOptionsWhere<Order>) {
     const conditions: FindManyOptions<Order> = {
-      where: search,
+      where: { ...search, deletedAt: IsNull() },
       relations: ['user', 'products'],
     }
     return await this.orderRepo.find(conditions)
@@ -42,6 +43,7 @@ export class OrdersService {
 
   async remove(id: string) {
     const order = await this.findOne(id)
+    await this.orderRepo.save({ ...order, status: OrderStatus.CANCELED })
     await this.orderRepo.softRemove(order)
     return order
   }

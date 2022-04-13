@@ -1,7 +1,9 @@
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { Order } from '../../orders/entities/order.entity'
 import { connectionTestOptions } from '../../ormconfig'
+import { Product } from '../../products/entities/product.entity'
 import { newMockedUser } from '../../utils/fixtures'
 import { User } from '../entities/user.entity'
 import { UsersService } from '../users.service'
@@ -13,7 +15,9 @@ describe('UsersService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [UsersService],
       imports: [
-        TypeOrmModule.forRootAsync(connectionTestOptions([User])),
+        TypeOrmModule.forRootAsync(
+          connectionTestOptions([User, Order, Product]),
+        ),
         TypeOrmModule.forFeature([User]),
         ConfigModule,
       ],
@@ -55,6 +59,13 @@ describe('UsersService', () => {
       expect(removed.id).toBe(user.id)
       expect(removed.deletedAt).toBeInstanceOf(Date)
       expect(removed.deletedAt).toBeDefined()
+    })
+
+    it('to return a deleted user', async () => {
+      const found = await service.findOne(user.id)
+      expect(found).toBeInstanceOf(User)
+      expect(found.id).toBe(user.id)
+      expect(found.name).toBe('Joao da Silva')
     })
   })
 })

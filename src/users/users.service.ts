@@ -18,7 +18,7 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return await this.userRepo.findOneByOrFail({ id })
+    return await this.userRepo.findOne({ where: { id }, withDeleted: true })
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { IsNull, Repository } from 'typeorm'
+import { FindManyOptions, FindOptionsWhere, IsNull, Repository } from 'typeorm'
 import { CreateProductDto } from './dto/create-product.dto'
 import { UpdateProductDto } from './dto/update-product.dto'
 import { Product } from './entities/product.entity'
@@ -16,8 +16,11 @@ export class ProductsService {
     return await this.productRepo.save(product)
   }
 
-  async findAll() {
-    return await this.productRepo.find({ where: { deletedAt: IsNull() } })
+  async findAllBy(search?: FindOptionsWhere<Product>) {
+    const conditions: FindManyOptions<Product> = {
+      where: { ...search, deletedAt: IsNull() },
+    }
+    return await this.productRepo.find(conditions)
   }
 
   async findOne(id: string) {
@@ -33,8 +36,8 @@ export class ProductsService {
   }
 
   async remove(id: string) {
-    const user = await this.findOne(id)
-    await this.productRepo.softRemove(user)
-    return user
+    const product = await this.findOne(id)
+    await this.productRepo.softRemove(product)
+    return product
   }
 }

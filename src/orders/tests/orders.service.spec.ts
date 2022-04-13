@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { getConnection } from 'typeorm'
+import { Between, getConnection } from 'typeorm'
 import { connectionTestOptions } from '../../ormconfig'
 import { Product } from '../../products/entities/product.entity'
 import { User } from '../../users/entities/user.entity'
@@ -50,20 +50,35 @@ describe('OrdersService', () => {
 
   describe('should call sucessful methods', () => {
     let order: Order
-    it('should create an order', async () => {
+    it('to create an order', async () => {
       order = await service.create(newMockedOrder)
       expect(order).toBeInstanceOf(Order)
       expect(order).toMatchObject(newMockedOrder)
     })
 
-    it('should find all orders', async () => {
+    it('to find all orders', async () => {
       const found = await service.findAllBy()
       expect(found).toBeInstanceOf(Array)
       expect(found[0]).toBeInstanceOf(Order)
       expect(found[0]).toMatchObject(newMockedOrder)
     })
 
-    it('should find one order', async () => {
+    it('to find all orders with one user', async () => {
+      const found = await service.findAllBy({ user: { id: mockedUser.id } })
+      expect(found).toBeInstanceOf(Array)
+      expect(found[0]).toBeInstanceOf(Order)
+      expect(found[0]).toMatchObject(newMockedOrder)
+    })
+
+    it('to find all orders between dates', async () => {
+      const found = await service.findAllBy({
+        createdAt: Between(new Date('01/01/2020'), new Date('01/02/2021')),
+      })
+      expect(found).toBeInstanceOf(Array)
+      expect(found).toHaveLength(0)
+    })
+
+    it('to find one order', async () => {
       const order = await service.findOne(mockedOrder.id)
       expect(order).toBeDefined()
       expect(order).toBeInstanceOf(Order)
@@ -71,7 +86,7 @@ describe('OrdersService', () => {
       expect(order.products[0]).toMatchObject(mockedDisk)
     })
 
-    it('should update an order', async () => {
+    it('to update an order', async () => {
       const order = await service.update(mockedOrder.id, {
         status: OrderStatus.FINISHED,
       })
@@ -80,11 +95,12 @@ describe('OrdersService', () => {
       expect(order.status).toBe(OrderStatus.FINISHED)
     })
 
-    it('should remove an order', async () => {
+    it('to remove an order', async () => {
       const order = await service.remove(mockedOrder.id)
       expect(order).toBeDefined()
       expect(order).toBeInstanceOf(Order)
       expect(order.deletedAt).toBeDefined()
+      expect(order.status).toBe(OrderStatus.CANCELED)
     })
   })
 })
