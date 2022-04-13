@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker'
 import * as fakerBr from 'faker-br'
 import { getConnection } from 'typeorm'
+import { v4 as uuidv4 } from 'uuid'
 import { CreateOrderDto } from '../orders/dto/create-order.dto'
 import { Order } from '../orders/entities/order.entity'
 import { CreateProductDto } from '../products/dto/create-product.dto'
@@ -21,6 +22,14 @@ export const newMockedUser: CreateUserDto = {
 }
 let mockedUser = new User(newMockedUser)
 
+export let dbSimUser: User = {
+  ...mockedUser,
+  id: uuidv4(),
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  deletedAt: null,
+}
+
 export const newMockedDisk: CreateProductDto = {
   name: 'We are Reactive',
   type: ProductType.DISK,
@@ -32,6 +41,14 @@ export const newMockedDisk: CreateProductDto = {
 
 let mockedDisk = new Product(newMockedDisk)
 
+export let dbSimDisk: Product = {
+  ...mockedDisk,
+  id: uuidv4(),
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  deletedAt: null,
+}
+
 export const newMockedOrder: CreateOrderDto = {
   quantity: 5,
   products: [mockedDisk],
@@ -40,6 +57,14 @@ export const newMockedOrder: CreateOrderDto = {
 }
 
 let mockedOrder = new Order(newMockedOrder)
+
+export let dbSimOrder: Order = {
+  ...mockedOrder,
+  id: uuidv4(),
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  deletedAt: null,
+}
 
 export async function DBseeder(quantity = 1) {
   const connection = getConnection()

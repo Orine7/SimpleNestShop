@@ -43,7 +43,8 @@ export class OrdersService {
 
   async remove(id: string) {
     const order = await this.findOne(id)
-    await this.orderRepo.save({ ...order, status: OrderStatus.CANCELED })
+    order.status = OrderStatus.CANCELED
+    await this.orderRepo.save(order)
     await this.orderRepo.softRemove(order)
     return order
   }
