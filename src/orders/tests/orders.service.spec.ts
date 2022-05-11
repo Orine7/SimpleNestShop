@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { TypeOrmModule } from '@nestjs/typeorm'
-import { Between, getConnection } from 'typeorm'
+import { getDataSourceToken, TypeOrmModule } from '@nestjs/typeorm'
+import { Between, DataSource } from 'typeorm'
 import { connectionTestOptions } from '../../ormconfig'
 import { Product } from '../../products/entities/product.entity'
 import { User } from '../../users/entities/user.entity'
@@ -11,6 +11,7 @@ import { OrdersService } from '../orders.service'
 
 describe('OrdersService', () => {
   let service: OrdersService
+  let connection: DataSource
   let mockedUser: User
   let mockedDisk: Product
   let mockedOrder: Order
@@ -28,9 +29,9 @@ describe('OrdersService', () => {
         TypeOrmModule.forFeature([Order]),
       ],
     }).compile()
+    connection = module.get(getDataSourceToken())
 
-    service = module.get<OrdersService>(OrdersService)
-    const { fixed, generated } = await DBseeder()
+    const { fixed, generated } = await DBseeder(connection, 3)
     mockedUser = fixed.mockedUser
     mockedDisk = fixed.mockedDisk
     mockedOrder = fixed.mockedOrder
@@ -38,10 +39,8 @@ describe('OrdersService', () => {
     generatedOrders = generated.orders
     generatedProducts = generated.disks
     generatedUsers = generated.users
-  })
 
-  afterAll(async () => {
-    await getConnection().close()
+    service = module.get<OrdersService>(OrdersService)
   })
 
   it('should be defined', () => {

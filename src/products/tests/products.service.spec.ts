@@ -1,6 +1,8 @@
 import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { TypeOrmModule } from '@nestjs/typeorm'
+import { getDataSourceToken, TypeOrmModule } from '@nestjs/typeorm'
+import 'reflect-metadata'
+import { DataSource } from 'typeorm'
 import { Order } from '../../orders/entities/order.entity'
 import { connectionTestOptions } from '../../ormconfig'
 import { User } from '../../users/entities/user.entity'
@@ -10,6 +12,7 @@ import { ProductsService } from '../products.service'
 
 describe('ProductsService', () => {
   let service: ProductsService
+  let connection: DataSource
   let mockedUser: User
   let mockedDisk: Product
   let mockedOrder: Order
@@ -28,8 +31,8 @@ describe('ProductsService', () => {
         ConfigModule,
       ],
     }).compile()
-
-    const { fixed, generated } = await DBseeder(3)
+    connection = module.get(getDataSourceToken())
+    const { fixed, generated } = await DBseeder(connection, 3)
     mockedUser = fixed.mockedUser
     mockedDisk = fixed.mockedDisk
     mockedOrder = fixed.mockedOrder

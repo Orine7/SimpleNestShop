@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import * as fakerBr from 'faker-br'
-import { getConnection } from 'typeorm'
+import { DataSource } from 'typeorm'
 import { v4 as uuidv4 } from 'uuid'
 import { CreateOrderDto } from '../orders/dto/create-order.dto'
 import { Order } from '../orders/entities/order.entity'
@@ -66,16 +66,14 @@ export let dbSimOrder: Order = {
   deletedAt: null,
 }
 
-export async function DBseeder(quantity = 1) {
-  const connection = getConnection()
-  const entityManager = connection.createEntityManager()
-  await entityManager.save(mockedUser)
-  await entityManager.save(mockedDisk)
-  await entityManager.save(mockedOrder)
+export async function DBseeder(dataSource: DataSource, quantity = 1) {
+  const manager = dataSource.manager
+
   const { disks, users, orders } = generateFixture(quantity)
-  await entityManager.save(users)
-  await entityManager.save(disks)
-  await entityManager.save(orders)
+  await manager.save([mockedUser, ...users])
+  await manager.save([mockedDisk, ...disks])
+  await manager.save([mockedOrder, ...orders])
+
   return {
     fixed: { mockedUser, mockedDisk, mockedOrder },
     generated: { disks, users, orders },
@@ -108,7 +106,7 @@ function generateFixture(quantity = 1) {
       quantity: faker.datatype.number(),
       products: [newDisk],
       user: newUser,
-      status: faker.random.arrayElement(Object.values(OrderStatus)),
+      status: faker.helpers.arrayElement(Object.values(OrderStatus)),
     })
 
     disks.push(newDisk)

@@ -39,7 +39,20 @@ export function connectionTestOptions(
   entities: Entity[],
 ): TypeOrmModuleAsyncOptions {
   return {
+    // dataSourceFactory: () => {
+    //   return Promise.resolve(
+    //     new DataSource({
+    //       type: 'sqlite',
+    //       database: ':memory:',
+    //       dropSchema: true,
+    //       entities: entities,
+    //       synchronize: true,
+    //       logging: false,
+    //     }),
+    //   )
+    // },
     useFactory: async () => ({
+      name: 'default',
       type: 'sqlite',
       database: ':memory:',
       dropSchema: true,
