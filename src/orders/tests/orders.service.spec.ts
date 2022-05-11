@@ -88,8 +88,15 @@ describe('OrdersService', () => {
 
     it('to update an order', async () => {
       const order = await service.update(mockedOrder.id, {
-        status: OrderStatus.FINISHED,
+        status: OrderStatus.PROCESSING,
       })
+      expect(order).toBeDefined()
+      expect(order).toBeInstanceOf(Order)
+      expect(order.status).toBe(OrderStatus.PROCESSING)
+    })
+
+    it('to execute an order', async () => {
+      const order = await service.executeOrder(mockedOrder.id)
       expect(order).toBeDefined()
       expect(order).toBeInstanceOf(Order)
       expect(order.status).toBe(OrderStatus.FINISHED)

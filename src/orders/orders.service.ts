@@ -33,9 +33,28 @@ export class OrdersService {
     })
   }
 
+  async executeOrder(id: string) {
+    const order = await this.findOne(id)
+    if (order.status !== OrderStatus.PROCESSING) {
+      throw new Error(`You can't execute a ${order.status} order`)
+    }
+    if (order.user.deletedAt) {
+      throw new Error(`You can't execute an order from a deleted user`)
+    }
+
+    order.status = OrderStatus.FINISHED
+    return await this.orderRepo.save(order)
+  }
+
   async update(id: string, updateOrderDto: UpdateOrderDto) {
     const order = await this.findOne(id)
     Object.keys(updateOrderDto).forEach((key) => {
+      const check_valid = [OrderStatus.FINISHED, OrderStatus.CANCELED].includes(
+        updateOrderDto[key],
+      )
+      if (key === 'status' && check_valid) {
+        throw new Error(`You can't update a ${updateOrderDto[key]} order`)
+      }
       order[key] = updateOrderDto[key]
     })
     return await this.orderRepo.save(order)
